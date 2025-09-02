@@ -5,17 +5,19 @@ from __future__ import annotations
 import shutil
 from pathlib import Path
 from typing import Iterable, List
-
+from transcription.whisper_transcriber import transcribe_file
 
 def transcribe_chunk(path: Path) -> str:
-    """Placeholder transcription routine.
+    """Transcribe a single audio chunk using the Whisper model.
+
+    Args:
+        path (Path): Path to the audio file to transcribe.
 
     Replace the body of this function with calls to your actual
     speech-to-text engine. For now, it simply returns an empty string.
     """
 
-    # TODO: Integrate with a real transcription library.
-    return ""
+    return transcribe_file(path)
 
 
 def transcribe_chunks(chunks_dir: str | Path) -> List[str]:
