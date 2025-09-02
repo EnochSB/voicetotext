@@ -7,7 +7,12 @@ from pathlib import Path
 from typing import Optional
 
 
-def transcribe_file(path: str | Path, model: str = "whisper-1", api_key: Optional[str] = None) -> str:
+def transcribe_file(
+    path: str | Path,
+    model: str = "whisper-1",
+    api_key: Optional[str] = None,
+    device: str = "cpu",
+) -> str:
     """Transcribe an audio file using Whisper.
 
     The function first attempts to use the OpenAI Whisper API. If an API key is
@@ -25,6 +30,9 @@ def transcribe_file(path: str | Path, model: str = "whisper-1", api_key: Optiona
     api_key:
         Optional explicit OpenAI API key. If ``None``, the ``OPENAI_API_KEY``
         environment variable is consulted.
+    device:
+        Device to run the local model on, e.g. ``"cpu"`` or ``"cuda"``.
+        Ignored when using the OpenAI API.
 
     Returns
     -------
@@ -61,6 +69,6 @@ def transcribe_file(path: str | Path, model: str = "whisper-1", api_key: Optiona
         ) from exc
 
     local_model = model if model != "whisper-1" else "base"
-    whisper_model = whisper.load_model(local_model)
+    whisper_model = whisper.load_model(local_model, device=device)
     result = whisper_model.transcribe(str(audio_path))
     return result.get("text", "")
