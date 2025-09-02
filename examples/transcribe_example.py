@@ -7,6 +7,7 @@ path is provided a small sample file will be downloaded at runtime.
 from __future__ import annotations
 
 import argparse
+import logging
 import sys
 import tempfile
 import urllib.request
@@ -40,6 +41,9 @@ def main() -> int:
         default="transcript.txt",
         help="Path for the generated transcript (default: transcript.txt)",
     )
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+    logger = logging.getLogger(__name__)
+
     args = parser.parse_args()
 
     if args.audio:
@@ -48,10 +52,11 @@ def main() -> int:
             parser.error(f"Audio file not found: {audio_path}")
     else:
         audio_path = download_sample()
-        print(f"Downloaded sample audio to {audio_path}")
+        logger.info("Downloaded sample audio to %s", audio_path)
 
+    logger.info("Starting transcription pipeline")
     run_pipeline(audio_path, args.output)
-    print(f"Transcript written to {args.output}")
+    logger.info("Transcript written to %s", args.output)
 
     if not args.audio:
         # Clean up downloaded sample
