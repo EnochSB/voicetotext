@@ -16,7 +16,10 @@ LOGGER = logging.getLogger(__name__)
 
 
 def run_pipeline(
-    input_audio: str | Path, output_text: str | Path, chunk_length: int = 30
+    input_audio: str | Path,
+    output_text: str | Path,
+    chunk_length: int = 30,
+    device: str = "cpu",
 ) -> None:
     """Run the audio transcription pipeline and save results.
 
@@ -28,6 +31,8 @@ def run_pipeline(
         Destination path to write the transcribed text.
     chunk_length:
         Length of each audio chunk in seconds. Defaults to 30.
+    device:
+        Device to run the transcription model on (e.g. ``"cpu"`` or ``"cuda"``).
     """
 
     input_audio = Path(input_audio)
@@ -42,7 +47,7 @@ def run_pipeline(
     LOGGER.info("Starting transcription of %d chunks", total)
     for idx, chunk in enumerate(sorted(chunks), start=1):
         LOGGER.info("Transcribing chunk %d/%d", idx, total)
-        transcripts.append(transcribe_chunk(chunk))
+        transcripts.append(transcribe_chunk(chunk, device=device))
         try:
             chunk.unlink()
         except FileNotFoundError:
@@ -70,6 +75,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=30,
         help="Length of audio chunks in seconds (default: 30)",
     )
+    parser.add_argument(
+        "--device",
+        choices=["cpu", "cuda"],
+        default="cpu",
+        help="Device for local transcription model (default: cpu)",
+    )
     return parser
 
 
@@ -80,7 +91,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    run_pipeline(args.input, args.output, args.chunk_length)
+    run_pipeline(args.input, args.output, args.chunk_length, args.device)
     return 0
 
 
