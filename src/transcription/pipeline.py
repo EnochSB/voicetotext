@@ -8,21 +8,23 @@ from typing import Iterable, List
 from transcription.whisper_transcriber import transcribe_file
 
 
-def transcribe_chunk(path: Path, device: str = "cpu", model: str = "base") -> str:
+def transcribe_chunk(
+    path: Path, device: str = "cpu", model: str = "base", **kwargs
+) -> str:
     """Transcribe a single audio chunk using the Whisper model.
 
     Args:
         path (Path): Path to the audio file to transcribe.
-
-    Replace the body of this function with calls to your actual
-    speech-to-text engine. For now, it simply returns an empty string.
+        device (str): Target device for the model.
+        model (str): Whisper model name.
+        **kwargs: Additional keyword arguments for ``transcribe_file``.
     """
 
-    return transcribe_file(path, model=model, device=device)
+    return transcribe_file(path, model=model, device=device, **kwargs)
 
 
 def transcribe_chunks(
-    chunks_dir: str | Path, device: str = "cpu", model: str = "base"
+    chunks_dir: str | Path, device: str = "cpu", model: str = "base", **kwargs
 ) -> List[str]:
     """Sequentially transcribe audio chunks located in ``chunks_dir``.
 
@@ -46,7 +48,9 @@ def transcribe_chunks(
 
     try:
         for chunk in sorted(chunks_path.glob("chunk_*.wav")):
-            transcripts.append(transcribe_chunk(chunk, device=device, model=model))
+            transcripts.append(
+                transcribe_chunk(chunk, device=device, model=model, **kwargs)
+            )
             try:
                 chunk.unlink()
             except FileNotFoundError:

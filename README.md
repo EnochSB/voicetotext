@@ -57,6 +57,18 @@ model, provide the `--model` flag:
 python src/cli.py input.wav output.txt --model medium
 ```
 
+## Tuning transcription parameters
+
+The CLI exposes a few Whisper decoding options. The most common are
+`--temperature` (default: `0.0`) and `--beam-size` (default: `5`). For example:
+
+```bash
+python src/cli.py input.wav output.txt --temperature 0.7 --beam-size 3
+```
+
+Higher temperatures make outputs more random, while larger beam sizes explore
+more decoding paths.
+
 ## 한국어 안내
 
 ### 요구 사항
@@ -105,3 +117,14 @@ python src/cli.py input.wav output.txt --device cuda
 ```bash
 python src/cli.py input.wav output.txt --model medium
 ```
+
+### 디코딩 파라미터 조정하기
+
+CLI는 Whisper 디코더의 몇 가지 옵션을 제공합니다. 대표적으로
+`--temperature`(기본값: `0.0`)와 `--beam-size`(기본값: `5`)가 있습니다:
+
+```bash
+python src/cli.py input.wav output.txt --temperature 0.7 --beam-size 3
+```
+
+높은 temperature는 결과의 무작위성을 높이고, 큰 beam size는 더 많은 탐색 경로를 고려합니다.
