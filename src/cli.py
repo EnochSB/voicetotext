@@ -7,7 +7,7 @@ import logging
 import shutil
 from pathlib import Path
 
-from audio_processing.chunking import split_audio, split_by_silence
+from audio_processing import preprocess_audio, split_audio, split_by_silence
 from transcription.pipeline import transcribe_chunk
 from text_correction.korean_corrector import correct_chunks
 
@@ -24,6 +24,7 @@ def run_pipeline(
     model: str = "base",
     temperature: float = 0.0,
     beam_size: int = 5,
+    skip_preprocessing: bool = False,
 ) -> None:
     """Run the audio transcription pipeline and save results.
 
@@ -48,10 +49,18 @@ def run_pipeline(
         Sampling temperature for the Whisper decoder. Defaults to 0.0.
     beam_size:
         Beam size for beam search decoding. Defaults to 5.
+    skip_preprocessing:
+        If ``True``, skip the optional audio preprocessing step.
     """
 
     input_audio = Path(input_audio)
     output_path = Path(output_text)
+
+    preprocessed: Path | None = None
+    if not skip_preprocessing:
+        LOGGER.info("Preprocessing audio '%s'", input_audio)
+        preprocessed = preprocess_audio(input_audio)
+        input_audio = preprocessed
 
     if split_method == "vad":
         LOGGER.info("Splitting audio '%s' using VAD", input_audio)
@@ -61,6 +70,12 @@ def run_pipeline(
             "Splitting audio '%s' into %s-second chunks", input_audio, chunk_length
         )
         chunks = split_audio(input_audio, chunk_length)
+
+    if preprocessed:
+        try:
+            preprocessed.unlink()
+        except FileNotFoundError:
+            pass
     LOGGER.info("Generated %d chunks", len(chunks))
 
     transcripts: list[str] = []
@@ -133,6 +148,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=5,
         help="Beam size for beam search (default: 5)",
     )
+    parser.add_argument(
+        "--skip-preprocessing",
+        action="store_true",
+        help="Skip audio preprocessing (noise reduction, normalization)",
+    )
     return parser
 
 
@@ -152,6 +172,7 @@ def main(argv: list[str] | None = None) -> int:
         args.model,
         args.temperature,
         args.beam_size,
+        args.skip_preprocessing,
     )
     return 0
 

@@ -10,10 +10,12 @@ A minimal example project for experimenting with audio transcription.
 - **Python packages**:
 
   ```bash
-  pip install openai-whisper torch pydub webrtcvad
+  pip install openai-whisper torch pydub webrtcvad noisereduce
   ```
 
   Install a CUDA-enabled build of `torch` if you plan to use a GPU.
+  `noisereduce` is required for the optional audio preprocessing step and may
+  be skipped by running the pipeline with `--skip-preprocessing`.
 
 ## Running the example
 
@@ -69,6 +71,17 @@ python src/cli.py input.wav output.txt --temperature 0.7 --beam-size 3
 Higher temperatures make outputs more random, while larger beam sizes explore
 more decoding paths.
 
+## Audio preprocessing
+
+By default the pipeline reduces background noise and normalizes volume before
+splitting the audio into chunks. This step requires the `noisereduce` package.
+If it is not installed or you wish to disable preprocessing, run the pipeline
+with `--skip-preprocessing`:
+
+```bash
+python src/cli.py input.wav output.txt --skip-preprocessing
+```
+
 ## 한국어 안내
 
 ### 요구 사항
@@ -78,10 +91,12 @@ more decoding paths.
 - **Python 패키지**:
 
   ```bash
-  pip install openai-whisper torch pydub webrtcvad
+  pip install openai-whisper torch pydub webrtcvad noisereduce
   ```
 
   GPU를 사용하려면 CUDA가 활성화된 `torch` 버전을 설치하세요.
+  `noisereduce`는 선택적인 오디오 전처리 단계에 필요하며 `--skip-preprocessing`
+  옵션으로 전처리를 생략할 수 있습니다.
 
 ### 예제 실행하기
 
@@ -128,3 +143,14 @@ python src/cli.py input.wav output.txt --temperature 0.7 --beam-size 3
 ```
 
 높은 temperature는 결과의 무작위성을 높이고, 큰 beam size는 더 많은 탐색 경로를 고려합니다.
+
+### 오디오 전처리
+
+파이프라인은 기본적으로 오디오의 노이즈를 줄이고 볼륨을 정규화한 뒤
+조각으로 나눕니다. 이 단계는 `noisereduce` 패키지에 의존하며 설치되어
+있지 않거나 전처리를 원하지 않는 경우 `--skip-preprocessing` 옵션으로
+생략할 수 있습니다:
+
+```bash
+python src/cli.py input.wav output.txt --skip-preprocessing
+```
