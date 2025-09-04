@@ -7,7 +7,7 @@ import logging
 import shutil
 from pathlib import Path
 
-from audio_processing.chunking import split_audio
+from audio_processing.chunking import split_audio, split_by_silence
 from transcription.pipeline import transcribe_chunk
 from text_correction.korean_corrector import correct_chunks
 
@@ -19,6 +19,7 @@ def run_pipeline(
     input_audio: str | Path,
     output_text: str | Path,
     chunk_length: int = 30,
+    split_method: str = "fixed",
     device: str = "cpu",
     model: str = "base",
     temperature: float = 0.0,
@@ -33,7 +34,12 @@ def run_pipeline(
     output_text:
         Destination path to write the transcribed text.
     chunk_length:
-        Length of each audio chunk in seconds. Defaults to 30.
+        Length of each audio chunk in seconds when using ``split_method='fixed'``.
+        Defaults to 30.
+    split_method:
+        Strategy for splitting audio. ``"fixed"`` splits into equal-length
+        chunks while ``"vad"`` uses voice activity detection to split on
+        silence.
     device:
         Device to run the transcription model on (e.g. ``"cpu"`` or ``"cuda"``).
     model:
@@ -47,8 +53,14 @@ def run_pipeline(
     input_audio = Path(input_audio)
     output_path = Path(output_text)
 
-    LOGGER.info("Splitting audio '%s' into %s-second chunks", input_audio, chunk_length)
-    chunks = split_audio(input_audio, chunk_length)
+    if split_method == "vad":
+        LOGGER.info("Splitting audio '%s' using VAD", input_audio)
+        chunks = split_by_silence(input_audio)
+    else:
+        LOGGER.info(
+            "Splitting audio '%s' into %s-second chunks", input_audio, chunk_length
+        )
+        chunks = split_audio(input_audio, chunk_length)
     LOGGER.info("Generated %d chunks", len(chunks))
 
     transcripts: list[str] = []
@@ -90,7 +102,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--chunk-length",
         type=int,
         default=30,
-        help="Length of audio chunks in seconds (default: 30)",
+        help="Length of audio chunks in seconds when using fixed splitting (default: 30)",
+    )
+    parser.add_argument(
+        "--split-method",
+        choices=["fixed", "vad"],
+        default="fixed",
+        help="Audio splitting method: 'fixed' for equal lengths, 'vad' to split on silence",
     )
     parser.add_argument(
         "--device",
@@ -129,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
         args.input,
         args.output,
         args.chunk_length,
+        args.split_method,
         args.device,
         args.model,
         args.temperature,
