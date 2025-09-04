@@ -10,7 +10,11 @@ A minimal example project for experimenting with audio transcription.
 - **Python packages**:
 
   ```bash
-  pip install openai-whisper torch pydub webrtcvad noisereduce
+  pip install openai-whisper torch pydub webrtcvad noisereduce language_tool_python
+
+  # Optional Korean text correction helpers
+  pip install git+https://github.com/ssut/py-hanspell.git
+  pip install git+https://github.com/haven-jeon/KoSpacing.git
   ```
 
   Install a CUDA-enabled build of `torch` if you plan to use a GPU.
@@ -82,6 +86,22 @@ with `--skip-preprocessing`:
 python src/cli.py input.wav output.txt --skip-preprocessing
 ```
 
+## Text correction
+
+The `korean_corrector` module fixes common spelling mistakes using
+`language_tool_python`. For additional cleanup you can chain optional
+correctors like [py-hanspell](https://github.com/ssut/py-hanspell) or
+[KoSpacing](https://github.com/haven-jeon/KoSpacing) and preserve
+domain‑specific terms via a custom dictionary:
+
+```python
+from src.text_correction.korean_corrector import correct_text
+
+domain_words = ["오픈AI", "GPT-4o"]
+text = correct_text("오픈 ai는 환영합니디", secondary="hanspell", user_dict=domain_words)
+print(text)
+```
+
 ## 한국어 안내
 
 ### 요구 사항
@@ -91,7 +111,11 @@ python src/cli.py input.wav output.txt --skip-preprocessing
 - **Python 패키지**:
 
   ```bash
-  pip install openai-whisper torch pydub webrtcvad noisereduce
+  pip install openai-whisper torch pydub webrtcvad noisereduce language_tool_python
+
+  # 선택적 한국어 텍스트 교정 도구
+  pip install git+https://github.com/ssut/py-hanspell.git
+  pip install git+https://github.com/haven-jeon/KoSpacing.git
   ```
 
   GPU를 사용하려면 CUDA가 활성화된 `torch` 버전을 설치하세요.
@@ -153,4 +177,19 @@ python src/cli.py input.wav output.txt --temperature 0.7 --beam-size 3
 
 ```bash
 python src/cli.py input.wav output.txt --skip-preprocessing
+```
+
+### 텍스트 교정
+
+`korean_corrector` 모듈은 `language_tool_python`으로 기본적인 맞춤법을 수정합니다.
+추가 후처리가 필요하다면 [py-hanspell](https://github.com/ssut/py-hanspell)이나
+[KoSpacing](https://github.com/haven-jeon/KoSpacing)과 같은 보조 교정기를 연결하고,
+사용자 정의 단어 사전으로 도메인 특화 용어를 보호할 수 있습니다:
+
+```python
+from src.text_correction.korean_corrector import correct_text
+
+domain_words = ["오픈AI", "GPT-4o"]
+text = correct_text("오픈 ai는 환영합니디", secondary="hanspell", user_dict=domain_words)
+print(text)
 ```
