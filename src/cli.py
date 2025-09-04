@@ -21,6 +21,8 @@ def run_pipeline(
     chunk_length: int = 30,
     device: str = "cpu",
     model: str = "base",
+    temperature: float = 0.0,
+    beam_size: int = 5,
 ) -> None:
     """Run the audio transcription pipeline and save results.
 
@@ -36,6 +38,10 @@ def run_pipeline(
         Device to run the transcription model on (e.g. ``"cpu"`` or ``"cuda"``).
     model:
         Whisper model name to use for transcription.
+    temperature:
+        Sampling temperature for the Whisper decoder. Defaults to 0.0.
+    beam_size:
+        Beam size for beam search decoding. Defaults to 5.
     """
 
     input_audio = Path(input_audio)
@@ -50,7 +56,15 @@ def run_pipeline(
     LOGGER.info("Starting transcription of %d chunks", total)
     for idx, chunk in enumerate(sorted(chunks), start=1):
         LOGGER.info("Transcribing chunk %d/%d", idx, total)
-        transcripts.append(transcribe_chunk(chunk, device=device, model=model))
+        transcripts.append(
+            transcribe_chunk(
+                chunk,
+                device=device,
+                model=model,
+                temperature=temperature,
+                beam_size=beam_size,
+            )
+        )
         try:
             chunk.unlink()
         except FileNotFoundError:
@@ -89,6 +103,18 @@ def build_parser() -> argparse.ArgumentParser:
         default="base",
         help="Whisper model size to use (default: base)",
     )
+    parser.add_argument(
+        "--temperature",
+        type=float,
+        default=0.0,
+        help="Sampling temperature for transcription (default: 0.0)",
+    )
+    parser.add_argument(
+        "--beam-size",
+        type=int,
+        default=5,
+        help="Beam size for beam search (default: 5)",
+    )
     return parser
 
 
@@ -99,7 +125,15 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    run_pipeline(args.input, args.output, args.chunk_length, args.device, args.model)
+    run_pipeline(
+        args.input,
+        args.output,
+        args.chunk_length,
+        args.device,
+        args.model,
+        args.temperature,
+        args.beam_size,
+    )
     return 0
 
 

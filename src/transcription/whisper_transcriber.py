@@ -9,6 +9,7 @@ def transcribe_file(
     path: str | Path,
     model: str = "base",
     device: str = "cpu",
+    **kwargs,
 ) -> str:
     """Transcribe an audio file using a local Whisper model.
 
@@ -20,6 +21,8 @@ def transcribe_file(
         Whisper model name, e.g. ``"base"``.
     device:
         Device to run the model on, e.g. ``"cpu"`` or ``"cuda"``.
+    **kwargs:
+        Additional keyword arguments passed to ``whisper_model.transcribe``.
 
     Returns
     -------
@@ -39,5 +42,5 @@ def transcribe_file(
         ) from exc
 
     whisper_model = whisper.load_model(model, device=device)
-    result = whisper_model.transcribe(str(audio_path))
+    result = whisper_model.transcribe(str(audio_path), **kwargs)
     return result.get("text", "")
