@@ -10,7 +10,7 @@ A minimal example project for experimenting with audio transcription.
 - **Python packages**:
 
   ```bash
-  pip install openai openai-whisper torch
+  pip install openai-whisper torch
   ```
 
   Install a CUDA-enabled build of `torch` if you plan to use a GPU.
@@ -57,7 +57,7 @@ pipeline with `device="cuda"` for convenience.
 - **Python 패키지**:
 
   ```bash
-  pip install openai openai-whisper torch
+  pip install openai-whisper torch
   ```
 
   GPU를 사용하려면 CUDA가 활성화된 `torch` 버전을 설치하세요.
