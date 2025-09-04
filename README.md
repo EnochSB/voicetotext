@@ -48,6 +48,15 @@ python src/cli.py input.wav output.txt --device cuda
 The repository also includes `examples/transcribe_gpu.py`, which invokes the
 pipeline with `device="cuda"` for convenience.
 
+## Choosing a model
+
+The pipeline uses the `base` Whisper model by default. To use a different
+model, provide the `--model` flag:
+
+```bash
+python src/cli.py input.wav output.txt --model medium
+```
+
 ## 한국어 안내
 
 ### 요구 사항
@@ -87,3 +96,12 @@ python src/cli.py input.wav output.txt --device cuda
 ```
 
 또한 저장소에는 편의를 위해 `device="cuda"`로 파이프라인을 호출하는 `examples/transcribe_gpu.py`도 포함되어 있습니다.
+
+### 모델 선택하기
+
+기본적으로 파이프라인은 `base` Whisper 모델을 사용합니다. 다른 크기의
+모델을 사용하려면 `--model` 플래그를 지정하세요:
+
+```bash
+python src/cli.py input.wav output.txt --model medium
+```
