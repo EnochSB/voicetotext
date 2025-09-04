@@ -20,6 +20,7 @@ def run_pipeline(
     output_text: str | Path,
     chunk_length: int = 30,
     device: str = "cpu",
+    model: str = "base",
 ) -> None:
     """Run the audio transcription pipeline and save results.
 
@@ -33,6 +34,8 @@ def run_pipeline(
         Length of each audio chunk in seconds. Defaults to 30.
     device:
         Device to run the transcription model on (e.g. ``"cpu"`` or ``"cuda"``).
+    model:
+        Whisper model name to use for transcription.
     """
 
     input_audio = Path(input_audio)
@@ -47,7 +50,7 @@ def run_pipeline(
     LOGGER.info("Starting transcription of %d chunks", total)
     for idx, chunk in enumerate(sorted(chunks), start=1):
         LOGGER.info("Transcribing chunk %d/%d", idx, total)
-        transcripts.append(transcribe_chunk(chunk, device=device))
+        transcripts.append(transcribe_chunk(chunk, device=device, model=model))
         try:
             chunk.unlink()
         except FileNotFoundError:
@@ -81,6 +84,11 @@ def build_parser() -> argparse.ArgumentParser:
         default="cpu",
         help="Device for local transcription model (default: cpu)",
     )
+    parser.add_argument(
+        "--model",
+        default="base",
+        help="Whisper model size to use (default: base)",
+    )
     return parser
 
 
@@ -91,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    run_pipeline(args.input, args.output, args.chunk_length, args.device)
+    run_pipeline(args.input, args.output, args.chunk_length, args.device, args.model)
     return 0
 
 

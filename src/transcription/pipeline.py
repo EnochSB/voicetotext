@@ -8,7 +8,7 @@ from typing import Iterable, List
 from transcription.whisper_transcriber import transcribe_file
 
 
-def transcribe_chunk(path: Path, device: str = "cpu") -> str:
+def transcribe_chunk(path: Path, device: str = "cpu", model: str = "base") -> str:
     """Transcribe a single audio chunk using the Whisper model.
 
     Args:
@@ -18,10 +18,12 @@ def transcribe_chunk(path: Path, device: str = "cpu") -> str:
     speech-to-text engine. For now, it simply returns an empty string.
     """
 
-    return transcribe_file(path, device=device)
+    return transcribe_file(path, model=model, device=device)
 
 
-def transcribe_chunks(chunks_dir: str | Path, device: str = "cpu") -> List[str]:
+def transcribe_chunks(
+    chunks_dir: str | Path, device: str = "cpu", model: str = "base"
+) -> List[str]:
     """Sequentially transcribe audio chunks located in ``chunks_dir``.
 
     Each chunk is processed one at a time to limit memory usage. After a chunk
@@ -44,7 +46,7 @@ def transcribe_chunks(chunks_dir: str | Path, device: str = "cpu") -> List[str]:
 
     try:
         for chunk in sorted(chunks_path.glob("chunk_*.wav")):
-            transcripts.append(transcribe_chunk(chunk, device=device))
+            transcripts.append(transcribe_chunk(chunk, device=device, model=model))
             try:
                 chunk.unlink()
             except FileNotFoundError:
